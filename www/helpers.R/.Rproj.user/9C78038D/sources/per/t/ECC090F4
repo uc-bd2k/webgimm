@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1529353015038.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3205661601",
+    "id" : "ECC090F4",
+    "lastKnownWriteTime" : 1529349088,
+    "last_content_update" : 1529349088,
+    "path" : "Z:/genomics/luka/webgimm/server-luka.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "158,50",
+        "scrollLine" : "133"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

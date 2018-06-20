@@ -9,6 +9,8 @@ wd<-"/mnt/raid/tmp/gimm"
 wwd<-"http://eh3.uc.edu/tmp/gimm"
 setwd(wd)
 
+values<-reactiveValues(gimmOut=NULL)
+
 output$fileName<-renderText({
 	if(is.null(input$inputFile)) return(NULL)
         as.character(input$inputFile[1,"datapath"])
@@ -38,50 +40,36 @@ observe({
 #       }
 # })
 
-output$toCluster<-renderDataTable(
-# 	{
-	inputDataTable(),
+output$toCluster<-renderDataTable({
+  print("blablah")
+	inputDataTable()},
 	options = list(pageLength = 5)
-# output$clustButton<-renderUI({
-#  	if(is.null(input$inputFile)) return(NULL)
-#  	actionButton("cluster",label="Cluster")
-#  #	p("Current Value")
-#  #	verbatimTextOutput("cluster")
-# }
 )
+
 observe({
 print(input$cluster)
       if(is.null(inputDataTable())){
         disable("cluster")
-#         disable("treeview")
-#         disable("download")
       }
 })
-       
-# observe({
-#       if(input$treeview) browseURL(paste(wwd,"/",sessionID,".jnlp",sep=""), browser="konqueror")
-# })
-#        
-       
-output$clustResults<-renderText({
-# finishesClustering<-reactive({
-print(1)
+
+output$junk<-renderText({print("blah")})
+output$junkjunk<-renderTable({
+  print("blahblahbalh")
+})
+
+observeEvent(input$cluster,
+                                  {
+print(101)
 print(dim(inputDataTable()))
-# 	if(is.null(input$inputFile)) return(NULL)
 	if(is.null(inputDataTable())) return(NULL)
 print(input$cluster)
-        if(input$cluster){
+print("About to run gimm")
+#        if(input$cluster){
             library(gimmR)
-#         progress <- shiny::Progress$new()
-# Make sure it closes when we exit this reactive, even if there's an error
-#         on.exit(progress$close())
-#         progress$set(message = "Analysis in Progress", detail="Reading Data", value = 0)
-#             setwd("/opt/raid10/genomics/Web/GenomicsPortals/ilincs/gimm")
 print("running gimm")
-#print(inputDataTable())
-#         progress$inc(1/3, detail = "Cluster Analysis")
 
-            gimmOut<-runGimmNPosthoc(inputDataTable(),dataFile=sessionID,M=dim(inputDataTable())[2]-2, T=dim(inputDataTable())[1], nIter=50, nreplicates=1,   burnIn=20,verbose=F, contextSpecific = "y", nContexts = dim(inputDataTable())[2]-2, contextLengths = rep(1,dim(inputDataTable())[2]-2),estimate_contexts = "y",intFiles=F) 
+            values$gimmOut<-runGimmNPosthoc(inputDataTable(),dataFile=sessionID,M=dim(inputDataTable())[2]-2, T=dim(inputDataTable())[1], nIter=50, nreplicates=1,   burnIn=20,verbose=F, contextSpecific = "y", nContexts = dim(inputDataTable())[2]-2, contextLengths = rep(1,dim(inputDataTable())[2]-2),estimate_contexts = "y",intFiles=F)
         
 #         progress$inc(1/3, detail = "Creating TreeView Files")
             source("/opt/raid10/genomics/software/RPrograms/source/createJnlpFile.R")
@@ -89,42 +77,65 @@ print("running gimm")
             junk<-createJnlpFileGenomics(ilincs=F,fileName=paste(sessionID,".jnlp",sep=""),location=wd, webLocation=wwd, targetFilesLocation=wd, targetFilesName=paste(sessionID,".cdt",sep=""), targetWebLocation=wwd)
 print(junk)
            system(paste("zip ",sessionID,".zip ",sessionID,".cdt ",sessionID,".gtr ",sessionID,".atr",sep=""))
-#       progress$inc(1/3, detail = "Done")
- 
-#             enable("treeview")
-#             enable("download")
-#             paste(names(gimmOut),sep="separator")
- 	  "Finished"
-      }
+           output$clustResults<-renderText({"***"})
+#      }
 })
-# output$clustResults<-reactive({
-# finishesClustering()
-# })
-# output$clustResults<-
+
+
+#UNSTABLE CLUSTERING
+
+# output$hiddenbutton <- renderText({
+#   cluster<-cutree(gimmOut$hGClustData,k=input$numclust)
+#   print(cluster)
+#   })
+
 output$treeviewLink <- renderUI({
-      tags$a(href = paste(wwd,"/",sessionID,".jnlp",sep=""), "View resluts with FTreeView")
+      tags$a(href = paste(wwd,"/",sessionID,".jnlp",sep=""), "View results with FTreeView")
 })
 
 output$downloadLink <- renderUI({
       tags$a(href = paste(wwd,"/",sessionID,".zip",sep=""), "Download clustering results")
 })
 
-# observe({
-#       if(input$download){
-#             system(paste("zip ",sessionID,".zip ",sessionID,".cdt ",sessionID,".gtr ",sessionID,".atr",sep=""))
-#             browseURL(paste(wwd,"/",sessionID,".zip",sep=""), browser="konqueror")
-#       }
-# })
+output$morpheus <- renderMorpheus({
+                                  test<-inputDataTable()
+                                  rownames(test)<-test[,2]
+                                  morpheus(test[,-(1:2)],
+                                           # distfun = function(x) {as.dist(1 - cor(t(x), use = "pairwise.complete.obs"))},
+                                           Rowv = as.dendrogram(values$gimmOut$hGClustData),
+                                           Colv = T,
+                                           dendrogram = "both",
+                                           rowAnnotation = test[,1:2],
+                                           colorScheme = list(scalingMode = "fixed", values = list(-2,0,2),
+                                                              colors = list("blue", "black", "yellow"))
+                                           )
+                                  }, env = environment(), quoted = F)
 
+# observeEvent(input$morpheusLink,
+#              {
+#                print("link")
+#                print(input$morpheuslink)
+#                showElement("hidden1")}, ignoreInit = TRUE)
+# 
+# observeEvent(input$morpheusLink,
+#              {
+#              hideElement("morpheusLink")}, ignoreInit = TRUE)
 
-#output$toCluster<-renderTable({
-#        if(is.null(input$inputFile)) return(NULL)
-#        inputDataTable<-read.table(file=as.character(input$inputFile[1,"datapath"]), sep="\t", header=T, stringsAsFactors=F)
-#        head(inputDataTable)[,head(colnames(inputDataTable))]
-#       data.frame(x=1:3,y=1:3)
-#  })
+hideTab("tabset","morpheusTab")
+
+hideTab("tabset", "clusterTab")
+
+observeEvent(input$cluster, {
+  showTab("tabset", "morpheusTab", select = TRUE)
 })
 
 
+# observeEvent(input$hiddenbutton,{
+#   showTab("tabset", "clusterTab", select = TRUE)
+# })
+  
+# observeEvent(input$cluster, {
+#   showElement("hiddenbutton")}, ignoreInit = TRUE)
+# })
 
-
+})
