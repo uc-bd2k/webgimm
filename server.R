@@ -4,7 +4,8 @@ library(shinyjs)
 shinyServer(function(input, output) {
 sessionID<-paste(gsub(":","_",gsub(" ","_",date())),trunc(10000000*runif(1)),sep="_")
 print(sessionID)
-wd<-"/opt/raid10/genomics/Web/GenomicsPortals/ilincs/gimm"
+#wd<-"/opt/raid10/genomics/Web/GenomicsPortals/ilincs/gimm"
+wd<-"/mnt/raid/tmp"
 wwd<-"http://eh3.uc.edu/genomics/GenomicsPortals/ilincs/gimm"
 # wd<-"/mnt/raid/tmp/gimm"
 # wwd<-"http://eh3.uc.edu/tmp/gimm"
