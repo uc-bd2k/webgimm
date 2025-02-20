@@ -7,14 +7,12 @@ if (!interactive()) sink(stderr(), type = "output")
 shinyServer(function(input, output,session) {
   sessionID<-paste(gsub(":","_",gsub(" ","_",date())),trunc(10000000*runif(1)),sep="_")
   print(sessionID)
-  print(getwd())
+  cwd<-getwd()
+  print(cwd)
 # wd<-"/opt/raid10/genomics/Web/sccmap/webgimm/tmp/"
-  wd<-"/Users/medvedm/restoredUCOneDrive/git/ucbd2k/webgimm/tmp/"
-  wwd<-"http://www.ilincs.uc.edu/genomics/webgimm/tmp"
-#wd<-"/mnt/raid/tmp"
-#wwd<-"http://eh3.uc.edu/webgimm-tmp"
-# wd<-"/mnt/raid/tmp/gimm"
-# wwd<-"http://eh3.uc.edu/tmp/gimm"
+  wd<-paste0(cwd,"/tmp/")
+  # wd<-"/Users/medvedm/restoredUCOneDrive/git/ucbd2k/webgimm/tmp/"
+  wwd<-"http://www.ilincs.uc.edu/genomics/sccmap/webgimm/tmp"
   setwd(wd)
 
   values<-reactiveValues(gimmOut=NULL,runClustering=FALSE)
@@ -101,5 +99,7 @@ shinyServer(function(input, output,session) {
       showTab("tabset", "Data", select = TRUE)
     }
   })
+
+  onSessionEnded(function(){unlink(c(paste0(sessionID,".gtr"), paste0(sessionID,".atr"), paste0(sessionID,".zm"),paste0(sessionID,".wc"),paste0(sessionID,".zm2"),paste0(sessionID,".cdt"),paste0(sessionID,".pos")), recursive = F)})
 
 })
