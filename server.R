@@ -65,6 +65,7 @@ shinyServer(function(input, output,session) {
 
     system(paste("zip ",sessionID,".zip ",sessionID,".cdt ",sessionID,".gtr ",sessionID,".atr",sep=""))
     output$clustResults<-renderText({"***"})
+    unlink(c(paste0(sessionID,".gtr"), paste0(sessionID,".atr"), paste0(sessionID,".zm"),paste0(sessionID,".wc"),paste0(sessionID,".zm2"),paste0(sessionID,".cdt"),paste0(sessionID,".pos")), recursive = F)
 
     library(morpheus)
     output$morpheus <- morpheus::renderMorpheus({
@@ -100,6 +101,6 @@ shinyServer(function(input, output,session) {
     }
   })
 
-  onSessionEnded(function(){unlink(c(paste0(sessionID,".gtr"), paste0(sessionID,".atr"), paste0(sessionID,".zm"),paste0(sessionID,".wc"),paste0(sessionID,".zm2"),paste0(sessionID,".cdt"),paste0(sessionID,".pos")), recursive = F)})
+  # onSessionEnded(function(){unlink(c(paste0(sessionID,".gtr"), paste0(sessionID,".atr"), paste0(sessionID,".zm"),paste0(sessionID,".wc"),paste0(sessionID,".zm2"),paste0(sessionID,".cdt"),paste0(sessionID,".pos")), recursive = F)})
 
 })
